@@ -1,0 +1,48 @@
+
+
+trigger:
+ paths:
+   include:
+     - vote/*
+
+resources:
+- repo: self
+
+variables:
+  dockerRegistryServiceConnection: 'acr-connection'
+  imageRepository: 'votingapp'
+  containerRegistry: 'akanshavotingappregistry.azurecr.io'
+  dockerfilePath: '$(Build.SourcesDirectory)/vote/Dockerfile'
+  tag: '$(Build.BuildId)'
+
+pool:
+ name: 'Self-hosted-akansha-ansh'
+
+stages:
+- stage: Build
+  displayName: 'Build Docker Image'
+  jobs:
+  - job: Build
+    displayName: 'Build and publish image to Azure Container Registry'
+    steps:
+    - task: Docker@2
+      inputs:
+        containerRegistry: '$(dockerRegistryServiceConnection)'
+        repository: '$(imageRepository)'
+        command: 'buildAndPush'
+        Dockerfile: '$(dockerfilePath)'
+        tags: '$(tag)'
+    
+    
+- stage: Update
+  displayName: Update
+  dependsOn: Build
+  condition: succeeded()
+
+  jobs:
+  - job: update
+    steps:
+    - task: Bash@3
+      inputs:
+        filePath: 'scripts/updateK8sManifests.sh'
+        arguments: 'vote $(imageRepository) $(tag)'
