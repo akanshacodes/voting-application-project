@@ -38,12 +38,6 @@ This project demonstrates a **microservices-based distributed system** where dif
 - 📊 Node.js web app which shows results in real time  
 ---
 
-## 🌐 Access Applications
-
-🗳️ Vote App → http://localhost:8080
-📊 Results App → http://localhost:8081
-
----
 ## 🔄 Data Flow
 
 ```text
